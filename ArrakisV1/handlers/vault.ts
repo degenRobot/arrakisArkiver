@@ -2,7 +2,7 @@ import { formatUnits, getContract } from 'npm:viem'
 import { type BlockHandler } from 'https://deno.land/x/robo_arkiver@v0.4.21/mod.ts'
 import { VaultSnapshot } from '../entities/vault.ts'
 import { ArrakisVault } from '../abis/arrakisVault.ts'
-import { UniV3Pool } from "../abis/uniV3pool.ts";
+import { UniV3Pool } from "../abis/uniV3pool.ts"
 import { Erc20Abi } from "../abis/erc20.ts";
 
 
@@ -17,14 +17,15 @@ export const snapshotVault: BlockHandler = async ({
   logger,
 }): Promise<void> => {
   // Filter out vaults that haven't been deployed yet
-  const liveVaults = VAULTS.filter((e) => e.block < Number(block.number))
-
+  ///const liveVaults = VAULTS.filter((e) => e.block < Number(block.number))
+  const liveVaults = VAULTS
   // Get vault info from cache or onchain
   const vaults = await Promise.all(liveVaults.map(async (vault) => {
     const contract = getContract({
       address: vault.address,
       abi: ArrakisVault,
-      publicClient: client,
+      //publicClient: client,
+      
     })
     return {
       address: vault.address,
@@ -65,7 +66,7 @@ export const snapshotVault: BlockHandler = async ({
   // fetch public Variables for this block
 
 
-  const [underlyingBalances, ]  = await Promise.all(vaults.map((e) => {
+  const underlyingBalances  = await Promise.all(vaults.map((e) => {
     return client.readContract({
       address: e.address,
       abi: ArrakisVault,
@@ -74,7 +75,12 @@ export const snapshotVault: BlockHandler = async ({
     })
   }))
 
-  console.log(underlyingBalances)
+  const underlyingBalance0 = underlyingBalances[0]
+  const underlyingBalance1 = underlyingBalances[1]
+
+  console.log(underlyingBalance0)
+  console.log(underlyingBalance1)
+
   // TO DO -> split this array into underlyingBalance0 & undelryingBalance1 -> then adjust based on totalSupply to get share Price (i.e. underlyingBalance0 / totalSupply)
 
   const [poolInfo] = await Promise.all(vaults.map((e) => {

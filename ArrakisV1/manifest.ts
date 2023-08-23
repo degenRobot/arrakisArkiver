@@ -10,7 +10,7 @@ manifest
     chain
       .addBlockHandler({
         blockInterval: 1000,
-        startBlockHeight: 17661035n,
+        startBlockHeight: 17661045n,
         handler: snapshotVault,
       }))
 
