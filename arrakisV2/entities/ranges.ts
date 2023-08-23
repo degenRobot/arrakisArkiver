@@ -12,6 +12,7 @@ export interface IRangeSnapshot {
   underlyingBalance1 : number
   block: number
   timestamp: number
+  rangeNumber : number 
 }
 
 export const RangeSnapshot = createEntity<IRangeSnapshot>('RangeSnapshot', {
@@ -26,4 +27,5 @@ export const RangeSnapshot = createEntity<IRangeSnapshot>('RangeSnapshot', {
   underlyingBalance1: { type: Number, index: true },
   block: { type: Number, index: true },
   timestamp: { type: Number, index: true },
+  rangeNumber : Number, 
 })

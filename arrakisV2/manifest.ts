@@ -1,14 +1,19 @@
 import { Manifest } from 'https://deno.land/x/robo_arkiver@v0.4.21/mod.ts'
 import { VaultSnapshot } from './entities/vault.ts'
 import { onVaultCreated, snapshotVault } from './handlers/vaultV2.ts'
-//import { VaultABI } from '../abis/vaultV2.ts'
+import { FeeHandler } from './handlers/eventHandlers.ts'
+import { VaultABI } from './abis/vault.ts'
 import { ArrakisFactoryABI } from './abis/factory.ts'
+import { RangeSnapshot } from './entities/ranges.ts'
+import { FeeSnapshot, FeeSnapshotHistorical } from "./entities/fees.ts";
 
 
 const manifest = new Manifest('arrakis-vaults')
 
 manifest
   .addEntity(VaultSnapshot)
+  .addEntity(RangeSnapshot)
+  .addEntity(FeeSnapshotHistorical)
   .addChain('mainnet', (chain) =>
     chain
     .setOptions(
@@ -29,7 +34,7 @@ manifest
         }
         }
       )
-      /*
+      
       .addContract({
         abi : VaultABI,
         name : "ArrakisV2Vault",
@@ -37,9 +42,10 @@ manifest
           factory : {
             VaultCreated : 'vault'
           }
-        }
+        },
+        eventHandlers : { LogCollectedFees : FeeHandler }
       })
-      */
+      
       .addBlockHandler({
         blockInterval: 1000,
         startBlockHeight: 16593701n,

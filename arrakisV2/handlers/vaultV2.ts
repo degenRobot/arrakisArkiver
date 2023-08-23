@@ -10,6 +10,7 @@ import { length } from 'https://deno.land/x/valibot@v0.8.0/mod.ts'
 import { EventHandler } from 'https://deno.land/x/robo_arkiver@v0.4.21/src/arkiver/types.ts'
 import { EventHandlerFor } from '../deps.ts'
 import { findBreakingChanges } from 'npm:graphql'
+import { RangeSnapshot } from "../entities/ranges.ts";
 
 
 
@@ -65,10 +66,25 @@ export const snapshotVault: BlockHandler = async ({
         async () => await contract.read.token1(),
       ),
 
-      pools: await store.retrieve(
-        `${vault.address}:pool`,
-        async () => await contract.read.getPools(),
+      init0: await store.retrieve(
+        `${vault.address}:token1`,
+        async () => await contract.read.init0(),
       ),      
+
+      init1: await store.retrieve(
+        `${vault.address}:token1`,
+        async () => await contract.read.init1(),
+      ),
+
+      owner: await store.retrieve(
+        `${vault.address}:token1`,
+        async () => await contract.read.owner(),
+      ),
+
+      manager: await store.retrieve(
+        `${vault.address}:token1`,
+        async () => await contract.read.manager(),
+      ),
 
       // TO DO fetch relevant data for token0 & token1 i.e. symbol & decimals 
     }
@@ -87,36 +103,76 @@ export const snapshotVault: BlockHandler = async ({
     })
   }))
 
+  
   // TO DO Convert to correct data to pass into entity 
 
 
-  const ranges = await Promise.all(vaults.map((e) => {
-    return client.readContract({
+  const ranges = await Promise.all(vaults.map(async (e) => {
+    return {range: await client.readContract({
       address: e.address,
       abi: VaultABI,
       functionName: 'getRanges',
       blockNumber: block.number,
-    })
+    }), vault: e}
   }))
-  console.log(ranges)
   
   
   for (let i = 0; i < ranges.length; i++) {
-    // Loop through & get Range Info 
-    
-    const rangeResults = await Promise.all(vaults.map((e) => {
-      console.log(e.address) 
-      return client.readContract({
-          address: HELPER_ADDRESS,
-          abi: ArrakisHelper,
-          functionName: 'token0AndToken1ByRange',
-          args : [ranges[i], e.token0, e.token1, e.address],
-          blockNumber: block.number,
-        })
-        
-      }))
-      console.log(rangeResults)
-      // need to pull out Amount outputs from amount0s & amount1s 
+    try {
+    const {range, vault} = ranges[i]
+
+    const rangeResults = await client.readContract({
+            address: HELPER_ADDRESS,
+            abi: ArrakisHelper,
+            functionName: 'token0AndToken1ByRange',
+            args : [range, vault.token0, vault.token1, vault.address],
+            blockNumber: block.number,
+          })
+      
+
+      const RangeEntities = []
+
+      // for (const res of rangeResults) {
+        const [ token0Ranges, token1Ranges ] = rangeResults
+        const amount1s = []
+        const amount0s = []
+        const rangeOuts = []
+
+        for (const tokenRes of token0Ranges) {
+        const { amount, range } = tokenRes 
+        amount0s.push(amount)
+        rangeOuts.push(range)
+        } 
+        for (const tokenRes of token1Ranges) {
+          const { amount } = tokenRes 
+          amount1s.push(amount)
+
+        } 
+
+        for (let j =0; j < amount0s.length; j++) {
+          RangeEntities.push(new RangeSnapshot({
+            block: Number(block.number),
+            timestamp: Number(block.timestamp),
+            vault: vault.address,
+            name: vault.name,
+            symbol: vault.symbol,
+            token0 : vault.token0,
+            token1 : vault.token1,
+            lowerTick : rangeOuts[j].lowerTick,
+            upperTick : rangeOuts[j].upperTick,
+            underlyingBalance0 : formatUnits(amount0s[j],18),
+            underlyingBalance1 : formatUnits(amount1s[j],18),
+            rangeNumber : j
+          }))
+        }
+
+        await RangeSnapshot.insertMany(RangeEntities)
+
+
+      // }
+    } catch{
+      console.log('ERROR IN RANGE !!!!!!!')
+    }
   }
   
   
@@ -150,9 +206,18 @@ export const snapshotVault: BlockHandler = async ({
       vault: vault.address,
       name: vault.name,
       symbol: vault.symbol,
+      owner : vault.owner,
+      manager : vault.manager,
+      init0 : vault.init0,
+      init1 : vault.init1,
       token0 : vault.token0, // TO DO -> make this symbol not address 
       token1 : vault.token1, 
       totalSupply : totalSupplyVault,
+      underlyingBalance0 : formatUnits(totalUnderlying[i].amount0, 18),
+      underlyingBalance1 :  formatUnits(totalUnderlying[i].amount1, 18),
+      fees0 : formatUnits(totalUnderlying[i].fee0,18),
+      fees1 : formatUnits(totalUnderlying[i].fee1,18),
+
       //underlyingBalance0 : underlyingBalances[0],
       //underlyingBalance1 : underlyingBalances[1],
     })

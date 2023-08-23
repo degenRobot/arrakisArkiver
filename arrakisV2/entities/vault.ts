@@ -14,13 +14,15 @@ export interface IVaultSnapshot {
   symbol: string
   token0: string
   token1: string 
+  init0 : number 
+  init1 : number
+  owner : string
+  manager : string
   totalSupply : number
   underlyingBalance0 : number
   underlyingBalance1 : number 
-  price : number 
-  currentTick : number 
-  lowerTick : number
-  upperTick : number 
+  fees0 : number 
+  fees1 : number 
   block: number
   timestamp: number
 }
@@ -31,13 +33,15 @@ export const VaultSnapshot = createEntity<IVaultSnapshot>('VaultSnapshot', {
   symbol: String,
   token0: String,
   token1: String, 
+  init0 : Number,
+  init1 : Number,
+  owner : String,
+  manager : String,
   underlyingBalance0: { type: Number, index: true },
   underlyingBalance1: { type: Number, index: true },
+  fees0: { type: Number, index: true },
+  fees1: { type: Number, index: true },
   totalSupply : { type: Number, index: true },
-  price: { type: Number, index: true },
-  currentTick: { type: Number, index: true },
-  lowerTick: { type: Number, index: true },
-  upperTick: { type: Number, index: true },
   block: { type: Number, index: true },
   timestamp: { type: Number, index: true },
 })
