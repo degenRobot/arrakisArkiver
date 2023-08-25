@@ -14,6 +14,8 @@ export interface IVaultSnapshot {
   symbol: string
   token0: string
   token1: string 
+  token0decimals : number
+  token1decimals : number
   init0 : number 
   init1 : number
   owner : string
@@ -33,6 +35,8 @@ export const VaultSnapshot = createEntity<IVaultSnapshot>('VaultSnapshot', {
   symbol: String,
   token0: String,
   token1: String, 
+  token0decimals : Number,
+  token1decimals : Number,
   init0 : Number,
   init1 : Number,
   owner : String,

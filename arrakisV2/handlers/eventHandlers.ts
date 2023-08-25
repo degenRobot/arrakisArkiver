@@ -18,11 +18,8 @@ export const FeeHandler : EventHandlerFor<typeof VaultABI, "LogCollectedFees"> =
 ) => {
 	const block = await store.retrieve(`getBlock:${event.blockNumber}`, async () => await client.getBlock({ blockNumber: event.blockNumber }))
     const {fee0, fee1} = event.args; 
-    console.log("Fee Collected" + fee0.toString()  + " - " + fee1.toString())
+    //console.log("Fee Collected" + fee0.toString()  + " - " + fee1.toString())
 
-    // await FeeSnapshot.updateOne({
-    //     _id: contract.address
-    // }, { $inc: { amount0: Number(formatUnits(fee0,18)) , amount1: Number(formatUnits(fee1,18))}}, { upsert: true })
     let totalFees = await FeeSnapshot.findOne({
         _id: contract.address
     })
@@ -35,11 +32,13 @@ export const FeeHandler : EventHandlerFor<typeof VaultABI, "LogCollectedFees"> =
         })
     }
 
+
     totalFees.amount0 += Number(formatUnits(fee0,18))
     totalFees.amount1 += Number(formatUnits(fee1,18))
     totalFees.save()
     const rec = new FeeSnapshotHistorical({
         vault: contract.address,
+        // TO DO -> format units for correct decimals (pull from Vault entity)
         amount0 : Number(formatUnits(fee0,18)),
         amount1 : Number(formatUnits(fee1,18)),
         total0 : totalFees.amount0,

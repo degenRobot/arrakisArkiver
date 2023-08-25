@@ -66,6 +66,21 @@ export const snapshotVault: BlockHandler = async ({
         async () => await contract.read.token1(),
       ),
 
+      /*
+      token0decimals: await client.readContract({
+        address : `${vault.address}:token0`,
+        abi : Erc20Abi,
+        functionName: 'decimals' 
+      }
+      )
+
+      token1decimals: await client.readContract({
+        address : `${vault.address}:token1`,
+        abi : Erc20Abi,
+        functionName: 'decimals' 
+      }
+      )
+      */
       init0: await store.retrieve(
         `${vault.address}:token1`,
         async () => await contract.read.init0(),
@@ -104,7 +119,16 @@ export const snapshotVault: BlockHandler = async ({
   }))
 
   
-  // TO DO Convert to correct data to pass into entity 
+  // TO DO Store Pool Address together with ranges 
+  const pools = await Promise.all(vaults.map(async (e) => {
+    return {range: await client.readContract({
+      address: e.address,
+      abi: VaultABI,
+      functionName: 'getPools',
+      blockNumber: block.number,
+    }), vault: e}
+  }))
+  
 
 
   const ranges = await Promise.all(vaults.map(async (e) => {
@@ -160,6 +184,7 @@ export const snapshotVault: BlockHandler = async ({
             token1 : vault.token1,
             lowerTick : rangeOuts[j].lowerTick,
             upperTick : rangeOuts[j].upperTick,
+            // TO DO Format Units by correct decimals Token0decimals / Token1decimals
             underlyingBalance0 : formatUnits(amount0s[j],18),
             underlyingBalance1 : formatUnits(amount1s[j],18),
             rangeNumber : j
@@ -188,11 +213,6 @@ export const snapshotVault: BlockHandler = async ({
 
   // Save the vault snapshots
   vaults.map((vault, i) => {
-    /*
-    const sharePrice = parseFloat(
-      formatUnits(sharePrices[i], Number(vault.decimals)),
-    )
-    */
 
     const totalSupplyVault = parseFloat(
       formatUnits(totalSupply[i], Number(vault.decimals)),
@@ -213,13 +233,11 @@ export const snapshotVault: BlockHandler = async ({
       token0 : vault.token0, // TO DO -> make this symbol not address 
       token1 : vault.token1, 
       totalSupply : totalSupplyVault,
+      // TO DO Format Units by correct decimals Token0decimals / Token1decimals
       underlyingBalance0 : formatUnits(totalUnderlying[i].amount0, 18),
       underlyingBalance1 :  formatUnits(totalUnderlying[i].amount1, 18),
       fees0 : formatUnits(totalUnderlying[i].fee0,18),
       fees1 : formatUnits(totalUnderlying[i].fee1,18),
-
-      //underlyingBalance0 : underlyingBalances[0],
-      //underlyingBalance1 : underlyingBalances[1],
     })
   }).map((e) => e.save())
 }
