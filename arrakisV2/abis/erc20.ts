@@ -1,4 +1,4 @@
-export const Erc20Abi = [{
+export const ERC20_ABI = [{
 	"inputs": [],
 	"stateMutability": "nonpayable",
 	"type": "constructor",
@@ -359,4 +359,4 @@ export const Erc20Abi = [{
 	"outputs": [],
 	"stateMutability": "nonpayable",
 	"type": "function",
-}];
+}] as const

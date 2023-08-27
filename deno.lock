@@ -311,7 +311,7 @@
       "graphql-compose-mongoose": "graphql-compose-mongoose@9.8.0_graphql-compose@9.0.10__graphql@16.8.0_mongoose@7.4.3_graphql@16.8.0",
       "lru-cache": "lru-cache@10.0.1",
       "mongoose": "mongoose@7.4.3",
-      "viem": "viem@1.6.4_ws@8.12.0"
+      "viem": "viem@1.7.0_ws@8.12.0"
     },
     "packages": {
       "@adraffy/ens-normalize@1.9.0": {
@@ -549,6 +549,21 @@
       },
       "viem@1.6.4_ws@8.12.0": {
         "integrity": "sha512-NUZIZRQnvjViP6P8PTQsPev9va9hYwFzAWR6y0UCtd4LBOUaAKUZqFoPTanX83rHInyHtyVTGr/Dl4qy7CbMNA==",
+        "dependencies": {
+          "@adraffy/ens-normalize": "@adraffy/ens-normalize@1.9.0",
+          "@noble/curves": "@noble/curves@1.1.0",
+          "@noble/hashes": "@noble/hashes@1.3.0",
+          "@scure/bip32": "@scure/bip32@1.3.0",
+          "@scure/bip39": "@scure/bip39@1.2.0",
+          "@types/ws": "@types/ws@8.5.5",
+          "@wagmi/chains": "@wagmi/chains@1.7.0",
+          "abitype": "abitype@0.9.3",
+          "isomorphic-ws": "isomorphic-ws@5.0.0_ws@8.12.0",
+          "ws": "ws@8.12.0"
+        }
+      },
+      "viem@1.7.0_ws@8.12.0": {
+        "integrity": "sha512-S4SclYe0Oca6TuPh2YPI3BzfC7a4UvN7TRDCWwpoVNnu9+4z2hqCZhW+6aF1yufgSwdezNsF14vztE/P4eMdBw==",
         "dependencies": {
           "@adraffy/ens-normalize": "@adraffy/ens-normalize@1.9.0",
           "@noble/curves": "@noble/curves@1.1.0",

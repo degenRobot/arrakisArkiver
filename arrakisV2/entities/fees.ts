@@ -35,8 +35,6 @@ export interface IFeeSnapSimple {
   total1 : number
   block: number
   timestamp: number
-
-
 }
 
 export const FeeSnapshotHistorical = createEntity<IFeeSnapSimple>('FeeSnapshotHistorical', {
